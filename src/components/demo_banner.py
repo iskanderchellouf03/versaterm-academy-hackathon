@@ -31,11 +31,3 @@ def render_demo_banner():
         """,
         unsafe_allow_html=True,
     )
-
-
-def render_banner_dismiss():
-    """Call only inside the authenticated sidebar."""
-    if not st.session_state.get("banner_dismissed", False):
-        if st.sidebar.button("Dismiss banner", key="dismiss_banner"):
-            st.session_state["banner_dismissed"] = True
-            st.rerun()

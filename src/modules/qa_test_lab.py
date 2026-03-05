@@ -261,14 +261,11 @@ def _run_generation(ticket):
     else:
         user_content = ticket.get("requirement_text", "")
 
-    response = client.chat.completions.create(
-        model=AZURE_OPENAI_DEPLOYMENT,
-        messages=[
-            {"role": "system", "content": full_prompt},
-            {"role": "user", "content": user_content},
-        ],
-    )
-    raw = response.choices[0].message.content
+    from src.ai.client import stream_completion
+    raw = stream_completion([
+        {"role": "system", "content": full_prompt},
+        {"role": "user", "content": user_content},
+    ])
     return normalize_markdown(ensure_sections("027", raw))
 
 
@@ -294,11 +291,8 @@ def _run_chat_followup(ticket, message, existing_result, chat_history):
 
     messages.append({"role": "user", "content": message})
 
-    response = client.chat.completions.create(
-        model=AZURE_OPENAI_DEPLOYMENT,
-        messages=messages,
-    )
-    return response.choices[0].message.content
+    from src.ai.client import stream_completion
+    return stream_completion(messages)
 
 
 def _render_results(result, ticket):
@@ -378,7 +372,7 @@ def _render_chat_refinement(ticket):
 
             existing_result = st.session_state.get("qa_test_result", "")
 
-            with st.spinner("Refining test suite..."):
+            with st.status("Refining test suite...", expanded=True):
                 try:
                     response = _run_chat_followup(
                         ticket, chat_input.strip(), existing_result, chat_history
@@ -491,7 +485,7 @@ def _render_generation_view():
         gen_col, _ = st.columns([1, 3])
         with gen_col:
             if st.button("Generate Test Suite", key="qa_generate", type="primary", use_container_width=True):
-                with st.spinner("Generating comprehensive test suite..."):
+                with st.status("Generating comprehensive test suite...", expanded=True):
                     try:
                         result = _run_generation(ticket)
                         st.session_state["qa_test_result"] = result

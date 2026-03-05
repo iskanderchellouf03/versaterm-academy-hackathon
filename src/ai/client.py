@@ -1,3 +1,5 @@
+import streamlit as st
+
 _client = None
 
 
@@ -23,3 +25,24 @@ def get_client():
         timeout=OPENAI_TIMEOUT,
     )
     return _client
+
+
+def stream_completion(messages, model=None):
+    """Stream a chat completion, showing tokens live in st.write_stream. Returns full text."""
+    from src.config import AZURE_OPENAI_DEPLOYMENT
+    client = get_client()
+    deployment = model or AZURE_OPENAI_DEPLOYMENT
+
+    stream = client.chat.completions.create(
+        model=deployment,
+        messages=messages,
+        stream=True,
+    )
+
+    def _token_gen():
+        for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
+
+    result = st.write_stream(_token_gen())
+    return result

@@ -270,19 +270,11 @@ JIRA_MOCK_MODE = os.getenv("JIRA_MOCK_MODE", "true").lower() == "true"
 # Demo Banner (011)
 DEMO_BANNER_TEXT = "Demo — This is a prototype. No data is persisted. All information is local to your current session."
 
-# Branded Theme (013)
-# Local Document Grounding (012)
+# Document Processing (used by module-level file uploads)
 MAX_FILE_SIZE_MB = 10
-MAX_FILES = 5
 CHUNK_SIZE = 500
 TOP_K = 3
 ACCEPTED_TYPES = ["pdf", "docx", "txt", "csv"]
-ACCEPTED_MIMES = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "text/plain",
-    "text/csv",
-]
 
 BRAND_LOGO_PATH = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
 BRAND_LOGO_WHITE_PATH = os.path.join(os.path.dirname(__file__), "assets", "logo-white.svg")

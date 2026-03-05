@@ -216,7 +216,7 @@ def render():
             st.error("Please paste some text to generate an article from.")
             return
 
-        with st.spinner("Writing your article..."):
+        with st.status("Writing your article...", expanded=True):
             try:
                 client = get_client()
                 context = build_kb_context(
@@ -225,14 +225,11 @@ def render():
                 )
                 format_rules = get_format_prompt("006")
                 full_prompt = SYSTEM_PROMPT + context + format_rules
-                response = client.chat.completions.create(
-                    model=AZURE_OPENAI_DEPLOYMENT,
-                    messages=[
-                        {"role": "system", "content": full_prompt},
-                        {"role": "user", "content": user_input},
-                    ],
-                )
-                raw = response.choices[0].message.content
+                from src.ai.client import stream_completion
+                raw = stream_completion([
+                    {"role": "system", "content": full_prompt},
+                    {"role": "user", "content": user_input},
+                ])
                 result = normalize_markdown(ensure_sections("006", raw))
                 st.session_state["kb_article_result"] = result
                 st.session_state["kb_article_context"] = {

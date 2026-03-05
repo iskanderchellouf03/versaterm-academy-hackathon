@@ -185,6 +185,45 @@ def render():
     with r2_c2:
         _render_card(MODULE_CARDS[4])
 
+    # ── Quick Try Examples ─────────────────────────────────────────
+    st.markdown(
+        '<div style="border-left: 4px solid #F39C12; padding: 0.5rem 1rem; margin: 1.5rem 0 1rem 0; '
+        'background: #F4F6F7; border-radius: 0 8px 8px 0;">'
+        '<span style="font-size: 1.05rem; color: #111111; font-weight: 600;">Quick Try</span>'
+        '<span style="font-size: 0.8rem; color: #5D6D7E; margin-left: 0.5rem;">'
+        'Jump straight into a module with a pre-filled example</span></div>',
+        unsafe_allow_html=True,
+    )
+
+    QUICK_EXAMPLES = [
+        {
+            "label": "\U0001f50d  Analyze a 911 Requirement",
+            "module": "\U0001f50d  Requirement Analyzer",
+            "prefill_key": "req_input_text",
+            "prefill_value": "When a 911 call is received, the system shall automatically display the caller's location on the dispatch map within 2 seconds. If the caller is on a VoIP line, the system shall fall back to the registered address and display a confidence indicator.",
+        },
+        {
+            "label": "\U0001f4dd  Write a KB Article",
+            "module": "\U0001f4dd  Smart Writer",
+            "prefill_key": "kb_input_text",
+            "prefill_value": "customer called about password reset, told them to go to settings > security > reset password, they needed to verify email first, took about 5 mins, resolved successfully",
+        },
+        {
+            "label": "\U0001f680  Plan Onboarding for a QA Engineer",
+            "module": "\U0001f680  Onboarding Planner",
+            "prefill_key": "onb_role",
+            "prefill_value": "QA Engineer",
+        },
+    ]
+
+    ex_cols = st.columns(len(QUICK_EXAMPLES), gap="medium")
+    for col, ex in zip(ex_cols, QUICK_EXAMPLES):
+        with col:
+            if st.button(ex["label"], key=f"quick_{ex['label']}", use_container_width=True):
+                st.session_state[ex["prefill_key"]] = ex["prefill_value"]
+                st.session_state["nav_target"] = ex["module"]
+                st.rerun()
+
     # ── Tips & Guidelines ────────────────────────────────────────
     st.markdown("")
 

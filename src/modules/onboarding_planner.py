@@ -711,17 +711,14 @@ def render():
         # Build product documentation context
         product_context = _build_product_context(company, product, role)
 
-        with st.spinner("Generating onboarding plan..."):
+        with st.status("Generating onboarding plan...", expanded=True):
             try:
                 client = get_client()
-                response = client.chat.completions.create(
-                    model=AZURE_OPENAI_DEPLOYMENT,
-                    messages=[
-                        {"role": "system", "content": full_prompt},
-                        {"role": "user", "content": user_message + cv_context + product_context},
-                    ],
-                )
-                raw = response.choices[0].message.content
+                from src.ai.client import stream_completion
+                raw = stream_completion([
+                    {"role": "system", "content": full_prompt},
+                    {"role": "user", "content": user_message + cv_context + product_context},
+                ])
                 result = normalize_markdown(ensure_sections("008", raw))
                 st.session_state["onb_plan_result"] = result
                 st.rerun()

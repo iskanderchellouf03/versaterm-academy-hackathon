@@ -404,7 +404,7 @@ def render():
             st.error("Please paste a requirement to analyze.")
             return
 
-        with st.spinner("Analyzing requirement..."):
+        with st.status("Analyzing requirement...", expanded=True):
             try:
                 client = get_client()
                 context = build_context_section(
@@ -414,14 +414,11 @@ def render():
                 product_ctx, product_sources = _build_product_context(user_input)
                 format_rules = get_format_prompt("004")
                 full_prompt = SYSTEM_PROMPT + context + format_rules
-                response = client.chat.completions.create(
-                    model=AZURE_OPENAI_DEPLOYMENT,
-                    messages=[
-                        {"role": "system", "content": full_prompt},
-                        {"role": "user", "content": user_input + product_ctx},
-                    ],
-                )
-                raw = response.choices[0].message.content
+                from src.ai.client import stream_completion
+                raw = stream_completion([
+                    {"role": "system", "content": full_prompt},
+                    {"role": "user", "content": user_input + product_ctx},
+                ])
                 result = normalize_markdown(ensure_sections("004", raw))
 
                 # Parse scores
